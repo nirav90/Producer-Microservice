@@ -1,0 +1,47 @@
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+// Class FutureTaskExample excute two future task 
+public class FutureTaskDemo {
+
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+
+		// syso method to place order
+		System.out.println(placeOrder());
+
+	}
+
+	public static String placeOrder() throws InterruptedException, ExecutionException {
+
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+
+		Callable<String> task1 = getFrontEndResponse();
+		Callable task2 = callToDownStream();
+
+		Future<String> fronEndResponse = executor.submit(task1);
+		executor.submit(task2);
+		executor.shutdown();
+		return fronEndResponse.get();
+
+	}
+
+	public static Callable<String> getFrontEndResponse() {
+		return () -> {
+			return "Order#099888 proceed succefully";
+		};
+	}
+
+	public static Callable callToDownStream() {
+		return () -> {
+			Thread.sleep(5000);
+			System.out.println(" Stream call : BSF call initaited ");
+			System.out.println(" Stream call : order submitted ");
+			return null;
+		};
+
+	}
+}
